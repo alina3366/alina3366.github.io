@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>Threads Mobile Onboarding</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .phone-frame {
+      width: 90%; /* Изменено на проценты для адаптивности */
+      max-width: 420px; /* Максимальная ширина для больших экранов */
+      height: auto; /* Автоматическая высота */
+      aspect-ratio: 9 / 20; /* Сохранение пропорций экрана */
+      border: 10px solid #000;
+      border-radius: 40px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+      background-color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px;
+    }
+    .background-stripes {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1; /* Фон за контентом */
+      pointer-events: none; /* Чтобы полоски не мешали взаимодействию */
+    }
+    .stripe {
+      position: absolute;
+      background-color: #000;
+      opacity: 0.1; /* Увеличена прозрачность для видимости */
+      border-radius: 20px; /* Закруглённые края */
+    }
+    /* Конкретные полоски */
+    .stripe:nth-child(1) {
+      top: 15%; left: 10%;
+      width: 70%; height: 10%;
+      transform: rotate(-10deg); /* Небольшой наклон */
+    }
+    .stripe:nth-child(2) {
+      top: 35%; left: 20%;
+      width: 60%; height: 8%;
+      transform: rotate(15deg); /* Небольшой наклон */
+    }
+    .stripe:nth-child(3) {
+      top: 55%; left: 15%;
+      width: 50%; height: 12%;
+      transform: rotate(-5deg); /* Небольшой наклон */
+    }
+    .stripe:nth-child(4) {
+      top: 75%; left: 25%;
+      width: 40%; height: 10%;
+      transform: rotate(10deg); /* Небольшой наклон */
+    }
+    .container {
+      display: none;
+      text-align: center;
+      flex: 1;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .active {
+      display: flex;
+      flex-direction: column;
+    }
+    .title {
+      font-size: 6vw; /* Адаптивный размер шрифта */
+      font-weight: bold;
+      margin-bottom: 2vw;
+    }
+    .subtitle {
+      font-size: 4vw; /* Адаптивный размер шрифта */
+      color: #666;
+      margin-bottom: 4vw;
+    }
+    button {
+      padding: 3vw 6vw; /* Адаптивные отступы */
+      font-size: 4vw; /* Адаптивный размер шрифта */
+      background-color: #000;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 1vw 0;
+    }
+    button:hover {
+      background-color: #333;
+    }
+    .profile-icon {
+      width: 12vw; /* Адаптивный размер */
+      height: 12vw; /* Адаптивный размер */
+      border-radius: 50%;
+      background-color: #ccc;
+      margin: 2vw auto;
+    }
+    .input-field {
+      width: 100%;
+      padding: 3vw; /* Адаптивные отступы */
+      margin: 2vw 0;
+      font-size: 4vw; /* Адаптивный размер шрифта */
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .footer-icons {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 4vw;
+    }
+    .footer-icons .icon {
+      font-size: 6vw; /* Адаптивный размер шрифта */
+      cursor: pointer;
+    }
+    .publish-button {
+      background-color: #ccc;
+      color: #000;
+      padding: 3vw 6vw; /* Адаптивные отступы */
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 4vw; /* Адаптивный размер шрифта */
+    }
+    .publish-button.active {
+      background-color: #000;
+      color: #fff;
+    }
+    /* Адаптация для маленьких экранов */
+    @media (max-width: 480px) {
+      .phone-frame {
+        border: 5px solid #000;
+        border-radius: 20px;
+      }
+      .title {
+        font-size: 8vw; /* Увеличенный размер для маленьких экранов */
+      }
+      .subtitle {
+        font-size: 6vw; /* Увеличенный размер для маленьких экранов */
+      }
+      button {
+        font-size: 6vw; /* Увеличенный размер для маленьких экранов */
+      }
+      .profile-icon {
+        width: 16vw; /* Увеличенный размер для маленьких экранов */
+        height: 16vw; /* Увеличенный размер для маленьких экранов */
+      }
+      .footer-icons .icon {
+        font-size: 8vw; /* Увеличенный размер для маленьких экранов */
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Рамка смартфона -->
+  <div class="phone-frame">
+    <div class="phone-screen">
+      <!-- Фоновые полоски -->
+      <div class="background-stripes">
+        <div class="stripe"></div>
+        <div class="stripe"></div>
+        <div class="stripe"></div>
+        <div class="stripe"></div>
+      </div>
+      <!-- Экран 1: Вход в приложение -->
+      <div class="container active" id="screen1">
+        <h1 class="title">Threads</h1>
+        <p class="subtitle">Welcome to Threads!</p>
+        <div class="profile-icon"></div>
+        <button onclick="switchScreen('screen-login')">Login with Instagram</button>
+      </div>
+      <!-- Экран 2: Вход по имени пользователя из Instagram -->
+      <div class="container" id="screen-login">
+        <h1 class="title">Login</h1>
+        <p class="subtitle">Enter your Instagram username:</p>
+        <input type="text" id="username-input" class="input-field" placeholder="Your Instagram username">
+        <button onclick="loginWithUsername()">Continue</button>
+        <p style="color: red; margin-top: 10px;" id="error-message"></p>
+        <button onclick="switchScreen('screen1')" style="background-color: #ccc; color: #000;">Back</button>
+      </div>
+      <!-- Экран 3: Настройка параметров взаимодействия -->
+      <div class="container" id="screen2">
+        <h1 class="title">Privacy Settings</h1>
+        <p class="subtitle">Make your profile public or private:</p>
+        <label><input type="radio" name="privacy" value="public"> Public</label>
+        <label><input type="radio" name="privacy" value="private"> Private</label>
+        <button onclick="switchScreen('screen3')">Next</button>
+      </div>
+      <!-- Экран 4: Как работает приложение -->
+      <div class="container" id="screen3">
+        <h1 class="title">How It Works</h1>
+        <p class="subtitle">Threads is powered by Instagram.</p>
+        <button onclick="switchScreen('screen4')">Join Threads</button>
+      </div>
+      <!-- Экран 5: Новостная лента -->
+      <div class="container" id="screen4">
+        <h1 class="title">News Feed</h1>
+        <p class="subtitle">Explore what others are sharing.</p>
+        <div class="footer-icons">
+          <span class="icon" onclick="alert('Home')">🏠</span>
+          <span class="icon" onclick="alert('Search')">🔍</span>
+          <span class="icon" onclick="switchScreen('screen6')">+</span>
+          <span class="icon" onclick="alert('Likes')">❤️</span>
+          <span class="icon" onclick="switchScreen('screen5')">👤</span>
+        </div>
+      </div>
+      <!-- Экран 6: Профиль -->
+      <div class="container" id="screen5">
+        <h1 class="title">Profile</h1>
+        <div class="profile-icon"></div>
+        <p class="subtitle">Your Profile</p>
+        <button>Edit Profile</button>
+        <button>Share Profile</button>
+        <div class="footer-icons">
+          <span class="icon" onclick="switchScreen('screen4')">🏠</span>
+          <span class="icon" onclick="alert('Search')">🔍</span>
+          <span class="icon" onclick="switchScreen('screen6')">+</span>
+          <span class="icon" onclick="alert('Likes')">❤️</span>
+          <span class="icon" onclick="switchScreen('screen5')">👤</span>
+        </div>
+      </div>
+      <!-- Экран 7: Создание записи -->
+      <div class="container" id="screen6">
+        <h1 class="title">New Thread</h1>
+        <p class="subtitle"><a href="#" onclick="switchScreen('screen4')">Cancel</a></p>
+        <div class="profile-icon"></div>
+        <p class="subtitle">Username</p>
+        <textarea class="input-field" id="thread-input" placeholder="Write your thread here..."></textarea>
+        <div class="footer-icons">
+          <span class="icon" onclick="alert('Add Photo')">🖼️</span>
+          <span class="icon" onclick="alert('Take Photo')">📸</span>
+          <span class="icon" onclick="alert('Record Voice')">🎤</span>
+        </div>
+        <button class="publish-button" onclick="publishThread()">Publish</button>
+      </div>
+      <!-- Экран 8: Готовая запись -->
+      <div class="container" id="screen7">
+        <h1 class="title">New Thread</h1>
+        <p class="subtitle"><a href="#" onclick="switchScreen('screen4')">Cancel</a></p>
+        <div class="profile-icon"></div>
+        <p class="subtitle">Username</p>
+        <p id="published-text">Hello, world!</p>
+        <button class="publish-button active" onclick="switchScreen('screen4')">Publish</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Имитация базы данных существующих пользователей
+    const existingUsers = ["alice_123", "bob_smith", "charlie_art"];
+    // Функция для переключения экранов
+    function switchScreen(screenId) {
+      document.querySelectorAll('.container').forEach(container => {
+        container.classList.remove('active');
+      });
+      const selectedScreen = document.getElementById(screenId);
+      if (selectedScreen) {
+        selectedScreen.classList.add('active');
+      }
+    }
+    // Функция для входа по имени пользователя
+    function loginWithUsername() {
+      const usernameInput = document.getElementById('username-input'); // Получаем поле ввода
+      const username = usernameInput.value.trim(); // Получаем значение имени пользователя
+      const errorMessage = document.getElementById('error-message');
+      // Проверяем, что поле не пустое
+      if (username === '') {
+        errorMessage.textContent = 'Please enter your Instagram username!';
+        return;
+      }
+      // Проверяем, существует ли пользователь
+      if (!existingUsers.includes(username)) {
+        errorMessage.textContent = 'User does not exist. Please try again.';
+        return;
+      }
+      // Сохраняем имя пользователя в localStorage
+      localStorage.setItem('username', username);
+      // Переходим на следующий экран
+      switchScreen('screen2');
+    }
+    // Функция для публикации текста
+    function publishThread() {
+      const inputField = document.getElementById('thread-input'); // Получаем текстовое поле
+      const publishedText = document.getElementById('published-text'); // Получаем элемент для отображения текста
+      // Проверяем, что текстовое поле не пустое
+      if (inputField.value.trim() === '') {
+        alert('Please enter some text to publish!');
+        return;
+      }
+      // Устанавливаем введенный текст в элемент для отображения
+      publishedText.textContent = inputField.value;
+      // Очищаем текстовое поле
+      inputField.value = '';
+      // Переключаемся на экран с опубликованным текстом
+      switchScreen('screen7');
+    }
+  </script>
+</body>
+</html>
